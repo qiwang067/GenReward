@@ -1,7 +1,7 @@
 <h1 align="center">
  [CVPR 2026] <i>Goal-Driven Reward by Video Diffusion Models for Reinforcement Learning</i> </h1>
 <p align="center">
-Qi Wang* · Mian Wu* · Yuyang Zhang* · Mingqi Yuan · Wenyao Zhang · Haoxiang You · Yunbo Wang · Xin Jin† · Xiaokang Yang · Wenjun Zeng
+Qi Wang* · Mian Wu* · Yuyang Zhang* · Mingqi Yuan · Wenyao Zhang · Haoxiang You <br> Yunbo Wang · Xin Jin† · Xiaokang Yang · Wenjun Zeng
 </p>
 
 <h3 align="center"> <a href="https://www.arxiv.org/pdf/2512.00961" target="_blank"> arXiv </a> &nbsp;&nbsp; | &nbsp;&nbsp; <a href="https://qiwang067.github.io/genreward" target="_blank"> Project Page </a> </h3>
