@@ -1,0 +1,529 @@
+defaults:
+
+  logdir: null
+  traindir: null
+  evaldir: null
+  offline_traindir: ''
+  offline_evaldir: ''
+  seed: 0
+  deterministic_run: False
+  steps: 1e6
+  parallel: False
+  eval_every: 1e4
+  eval_episode_num: 10
+  log_every: 1e4
+  reset_every: 0
+  device: 'cuda:0'
+  compile: True
+  precision: 32
+  debug: False
+  video_pred_log: True
+
+  # wandb
+  team_name: 'qiresearch'
+  project_name: 'goal_dream'
+  experiment_name: null
+  scenario_name: null
+  is_debug: null
+  notes: null
+  wandb_mode: 'online'
+  description: null
+  video_path: null
+  reward_type: 'dense'  # 'dense' or 'sparse'
+  reward_case: null  # 'dense' or 'sparse'
+  checkpoint_path: null
+  crop: null
+  alpha: 1  # alpha for reward scaling
+
+  # Environment
+  task: 'dmc_walker_walk'
+  size: [64, 64]
+  envs: 1
+  action_repeat: 2
+  time_limit: 1000
+  grayscale: False
+  prefill: 2500
+  reward_EMA: True
+
+  # Calvin-specific params
+  dataset_path: ""
+  scene: "calvin_scene_D"
+  show_gui: false
+
+  keep: 128
+  interval: 128
+  reward_weight: 1.0
+  fb_ckpt: null
+
+  # Model
+  dyn_hidden: 512
+  dyn_deter: 512
+  dyn_stoch: 32
+  dyn_discrete: 32
+  dyn_rec_depth: 1
+  dyn_mean_act: 'none'
+  dyn_std_act: 'sigmoid2'
+  dyn_min_std: 0.1
+  grad_heads: ['decoder', 'reward', 'cont']
+  units: 512
+  act: 'SiLU'
+  norm: True
+  encoder:
+    {mlp_keys: '$^', cnn_keys: 'image', act: 'SiLU', norm: True, cnn_depth: 32, kernel_size: 4, minres: 4, mlp_layers: 5, mlp_units: 1024, symlog_inputs: True}
+  decoder:
+    {mlp_keys: '$^', cnn_keys: 'image', act: 'SiLU', norm: True, cnn_depth: 32, kernel_size: 4, minres: 4, mlp_layers: 5, mlp_units: 1024, cnn_sigmoid: False, image_dist: mse, vector_dist: symlog_mse, outscale: 1.0}
+  actor:
+    {layers: 2, dist: 'normal', entropy: 3e-4, unimix_ratio: 0.01, std: 'learned', min_std: 0.1, max_std: 1.0, temp: 0.1, lr: 3e-5, eps: 1e-5, grad_clip: 100.0, outscale: 1.0}
+  critic:
+    {layers: 2, dist: 'symlog_disc', slow_target: True, slow_target_update: 1, slow_target_fraction: 0.02, lr: 3e-5, eps: 1e-5, grad_clip: 100.0, outscale: 0.0}
+  reward_head:
+    {layers: 2, dist: 'symlog_disc', loss_scale: 1.0, outscale: 0.0}
+  cont_head:
+    {layers: 2, loss_scale: 1.0, outscale: 1.0}
+  dyn_scale: 0.5
+  rep_scale: 0.1
+  kl_free: 1.0
+  weight_decay: 0.0
+  unimix_ratio: 0.01
+  initial: 'learned'
+
+  # Training
+  batch_size: 16
+  batch_length: 64
+  train_ratio: 512
+  pretrain: 100
+  model_lr: 1e-4
+  opt_eps: 1e-8
+  grad_clip: 1000
+  dataset_size: 1000000
+  opt: 'adam'
+
+  # Behavior.
+  discount: 0.997
+  discount_lambda: 0.95
+  imag_horizon: 15
+  imag_gradient: 'dynamics'
+  imag_gradient_mix: 0.0
+  eval_state_mean: False
+
+  # Exploration
+  expl_behavior: 'greedy'
+  expl_until: 0
+  expl_extr_scale: 0.0
+  expl_intr_scale: 1.0
+  disag_target: 'stoch'
+  disag_log: True
+  disag_models: 10
+  disag_offset: 1
+  disag_layers: 4
+  disag_units: 400
+  disag_action_cond: False
+
+dmc_proprio:
+  steps: 5e5
+  action_repeat: 2
+  envs: 4
+  train_ratio: 512
+  video_pred_log: false
+  encoder: {mlp_keys: '.*', cnn_keys: '$^'}
+  decoder: {mlp_keys: '.*', cnn_keys: '$^'}
+
+
+
+dmc_vision:
+  steps: 1e6
+  action_repeat: 2
+  envs: 4
+  train_ratio: 512
+  video_pred_log: true
+  encoder: {mlp_keys: '$^', cnn_keys: 'image'}
+  decoder: {mlp_keys: '$^', cnn_keys: 'image'}
+
+crafter:
+  task: crafter_reward
+  step: 1e6
+  action_repeat: 1
+  envs: 1
+  train_ratio: 512
+  video_pred_log: true
+  dyn_hidden: 1024
+  dyn_deter: 4096
+  units: 1024
+  encoder: {mlp_keys: '$^', cnn_keys: 'image', cnn_depth: 96, mlp_layers: 5, mlp_units: 1024}
+  decoder: {mlp_keys: '$^', cnn_keys: 'image', cnn_depth: 96, mlp_layers: 5, mlp_units: 1024}
+  actor: {layers: 5, dist: 'onehot', std: 'none'}
+  value: {layers: 5}
+  reward_head: {layers: 5}
+  cont_head: {layers: 5}
+  imag_gradient: 'reinforce'
+
+atari100k:
+  steps: 4e5
+  envs: 1
+  action_repeat: 4
+  train_ratio: 1024
+  video_pred_log: true
+  eval_episode_num: 100
+  actor: {dist: 'onehot', std: 'none'}
+  imag_gradient: 'reinforce'
+  stickey: False
+  lives: unused
+  noops: 30
+  resize: opencv
+  actions: needed
+  time_limit: 108000
+
+minecraft:
+  task: minecraft_diamond
+  step: 1e8
+  parallel: True
+  envs: 16
+  # no eval
+  eval_episode_num: 0
+  eval_every: 1e4
+  action_repeat: 1
+  train_ratio: 16
+  video_pred_log: true
+  dyn_hidden: 1024
+  dyn_deter: 4096
+  units: 1024
+  encoder: {mlp_keys: 'inventory|inventory_max|equipped|health|hunger|breath|obs_reward', cnn_keys: 'image', cnn_depth: 96, mlp_layers: 5, mlp_units: 1024}
+  decoder: {mlp_keys: 'inventory|inventory_max|equipped|health|hunger|breath', cnn_keys: 'image', cnn_depth: 96, mlp_layers: 5, mlp_units: 1024}
+  actor: {layers: 5, dist: 'onehot', std: 'none'}
+  value: {layers: 5}
+  reward_head: {layers: 5}
+  cont_head: {layers: 5}
+  imag_gradient: 'reinforce'
+  break_speed: 100.0
+  time_limit: 36000
+
+memorymaze:
+  steps: 1e8
+  action_repeat: 2
+  actor: {dist: 'onehot', std: 'none'}
+  imag_gradient: 'reinforce'
+  task: 'memorymaze_9x9'
+
+metaworld:
+
+  #logdir: [./logdir/metaworld]
+  #task: [metaworld_door-close, metaworld_hammer, metaworld_assembly, metaworld_sweep, metaworld_box-close, metaworld_drawer-close, metaworld_pick-place]
+  encoder: {mlp_keys: '$^', cnn_keys: 'image'}
+  decoder: {mlp_keys: '$^', cnn_keys: 'image'}
+  eval_every: 1e4
+  # pretrain: 100
+  # dataset_size: 2e6
+  train_ratio: 512
+  video_pred_log: false
+  pred_discount: False
+  # grad_heads: ['image', 'reward']
+  # rssm: {hidden: 200, deter: 200}
+  actor_ent: 1e-4
+  # kl.free: 1.0
+  #dataset: {batch: 20, length: 50}
+  time_limit: 500
+  action_repeat: 1
+  # eval_eps: 10
+  prefill: 5000
+  camera: corner
+  # FB configs
+  fb_train_until: 2e5
+  fb_config:
+    fb_train_until: 2e5
+    fb_ckpt: null
+
+    obs_dim: 384
+    action_dim: 4
+    z_dim: 64
+    hidden_dim: 512
+    feature_dim: 512
+    
+    device: null
+    
+    fb_lr: 1e-4
+    ortho_coef: 1.0
+    target_tau: 0.01
+    
+    preprocess: false
+    add_trunk: true
+    norm_z: true
+
+
+robodesk:
+  #logdir: [./logdir/metaworld]
+  #task: [metaworld_door-close, metaworld_hammer, metaworld_assembly, metaworld_sweep, metaworld_box-close, metaworld_drawer-close, metaworld_pick-place]
+  encoder: {mlp_keys: '$^', cnn_keys: 'image'}
+  decoder: {mlp_keys: '$^', cnn_keys: 'image'}
+  eval_every: 1e4
+  # pretrain: 100
+  # dataset_size: 2e6
+  train_ratio: 512
+  video_pred_log: false
+  pred_discount: False
+  # grad_heads: ['image', 'reward']
+  # rssm: {hidden: 200, deter: 200}
+  actor_ent: 1e-4
+  # kl.free: 1.0
+  #dataset: {batch: 20, length: 50}
+  time_limit: 500
+  action_repeat: 1
+  # eval_eps: 10
+  prefill: 5000
+  camera: corner
+  # FB configs
+  fb_train_until: 2e5
+  fb_config:
+    fb_train_until: 2e5
+    fb_ckpt: null
+
+    obs_dim: 384
+    action_dim: 4
+    z_dim: 64
+    hidden_dim: 512
+    feature_dim: 512
+    
+    device: null
+    
+    fb_lr: 1e-4
+    ortho_coef: 1.0
+    target_tau: 0.01
+    
+    preprocess: false
+    add_trunk: true
+    norm_z: true
+
+
+calvingc:
+  #logdir: [./logdir/calvingc]
+  #state-based
+  encoder: {mlp_keys: '.*', cnn_keys: '$^'}
+
+  decoder: {mlp_keys: '.*', cnn_keys: '$^'}
+  eval_every: 1e4
+  # pretrain: 100
+  # dataset_size: 2e6
+  train_ratio: 512
+  video_pred_log: false
+  pred_discount: False
+  # grad_heads: ['image', 'reward']
+  # rssm: {hidden: 200, deter: 200}
+  actor_ent: 1e-4
+  # kl.free: 1.0
+  #dataset: {batch: 20, length: 50}
+  action_repeat: 1
+  # eval_eps: 10
+  prefill: 5000
+
+  task: "calvingc_open_drawer"
+  time_limit: 256
+  camera: "rgb_static"
+  dataset_path: ""
+  scene: "calvin_scene_D"
+  show_gui: false
+
+  # reward defaults for calvingc
+  reward_case: "fb"
+  video_path: null
+  keep: 128
+  interval: 128
+  reward_weight: 1.0
+
+  fb_train_until: 2e5
+  fb_config:
+    fb_train_until: 2e5
+    fb_ckpt: null
+
+    obs_dim: 384
+    action_dim: 7
+    z_dim: 64
+    hidden_dim: 512
+    feature_dim: 512
+    
+    device: 'cuda'
+    
+    fb_lr: 1e-4
+    ortho_coef: 1.0
+    target_tau: 0.01
+    
+    preprocess: false
+    add_trunk: true
+    norm_z: true
+
+debug_calvingc:
+  #logdir: [./logdir/metaworld]
+  #task: [metaworld_door-close, metaworld_hammer, metaworld_assembly, metaworld_sweep, metaworld_box-close, metaworld_drawer-close, metaworld_pick-place]
+  encoder: {mlp_keys: '.*', cnn_keys: '$^'}
+  decoder: {mlp_keys: '.*', cnn_keys: '$^'}
+  eval_every: 500
+  # pretrain: 100
+  # dataset_size: 2e6
+  train_ratio: 1
+  video_pred_log: false
+  pred_discount: False
+  # grad_heads: ['image', 'reward']
+  # rssm: {hidden: 200, deter: 200}
+  actor_ent: 1e-4
+  # kl.free: 1.0
+  #dataset: {batch: 20, length: 50}
+  action_repeat: 1
+  eval_episode_num: 1
+  # eval_eps: 10
+  prefill: 1
+  pretrain: 1
+  batch_size: 10
+  batch_length: 20
+
+  task: "calvingc_open_drawer"
+  time_limit: 256
+  camera: "rgb_static"
+  dataset_path: ""
+  scene: "calvin_scene_D"
+  show_gui: false
+
+  # reward defaults for calvingc
+  reward_case: "fb"
+  video_path: null
+  keep: 128
+  interval: 128
+  reward_weight: 1.0
+
+  fb_train_until: 2000
+  fb_config:
+    fb_train_until: 2000
+    fb_ckpt: null
+
+    obs_dim: 384
+    action_dim: 7
+    z_dim: 64
+    hidden_dim: 512
+    feature_dim: 512
+    
+    device: 'cuda'
+    
+    fb_lr: 1e-4
+    ortho_coef: 1.0
+    target_tau: 0.01
+    
+    preprocess: false
+    add_trunk: true
+    norm_z: true
+
+    use_vae_encoder: false
+debug_metaworld:
+
+  #logdir: [./logdir/metaworld]
+  #task: [metaworld_door-close, metaworld_hammer, metaworld_assembly, metaworld_sweep, metaworld_box-close, metaworld_drawer-close, metaworld_pick-place]
+  encoder: {mlp_keys: '$^', cnn_keys: 'image'}
+  decoder: {mlp_keys: '$^', cnn_keys: 'image'}
+  eval_every: 500
+  # pretrain: 100
+  # dataset_size: 2e6
+  train_ratio: 1
+  video_pred_log: false
+  pred_discount: False
+  # grad_heads: ['image', 'reward']
+  # rssm: {hidden: 200, deter: 200}
+  actor_ent: 1e-4
+  # kl.free: 1.0
+  #dataset: {batch: 20, length: 50}
+  time_limit: 500
+  action_repeat: 1
+  eval_episode_num: 1
+  # eval_eps: 10
+  prefill: 1
+  pretrain: 1
+  batch_size: 10
+  batch_length: 20
+  camera: corner
+  # FB configs
+  fb_train_until: 2e5
+  fb_config:
+    fb_train_until: 2e5
+    fb_ckpt: null
+
+    obs_dim: 384
+    action_dim: 4
+    z_dim: 64
+    hidden_dim: 512
+    feature_dim: 512
+    
+    device: null
+    
+    fb_lr: 1e-4
+    ortho_coef: 1.0
+    target_tau: 0.01
+    
+    preprocess: false
+    add_trunk: true
+    norm_z: true
+
+
+debug:
+  debug: True
+  pretrain: 1
+  prefill: 1
+  batch_size: 10
+  batch_length: 20
+  # for dmc_vision
+  steps: 1e6
+  action_repeat: 2
+  envs: 4
+  train_ratio: 512
+  video_pred_log: true
+  encoder: {mlp_keys: '$^', cnn_keys: 'image'}
+  decoder: {mlp_keys: '$^', cnn_keys: 'image'}
+
+# debug:
+#   debug: True
+#   pretrain: 1
+#   prefill: 1
+#   batch_size: 10
+#   batch_length: 20
+
+
+debug_robodesk:
+  #logdir: [./logdir/metaworld]
+  #task: [metaworld_door-close, metaworld_hammer, metaworld_assembly, metaworld_sweep, metaworld_box-close, metaworld_drawer-close, metaworld_pick-place]
+  encoder: {mlp_keys: '$^', cnn_keys: 'image'}
+  decoder: {mlp_keys: '$^', cnn_keys: 'image'}
+  eval_every: 500
+  # pretrain: 100
+  # dataset_size: 2e6
+  train_ratio: 1
+  video_pred_log: false
+  pred_discount: False
+  # grad_heads: ['image', 'reward']
+  # rssm: {hidden: 200, deter: 200}
+  actor_ent: 1e-4
+  # kl.free: 1.0
+  #dataset: {batch: 20, length: 50}
+  time_limit: 500
+  action_repeat: 1
+  # eval_eps: 10
+  eval_episode_num: 1
+  prefill: 1
+  pretrain: 1
+  batch_size: 10
+  batch_length: 20
+  camera: corner
+  # FB configs
+  fb_train_until: 2e3
+  fb_config:
+    fb_train_until: 2e3
+    fb_ckpt: null
+
+    obs_dim: 384
+    action_dim: 4
+    z_dim: 64
+    hidden_dim: 512
+    feature_dim: 512
+    
+    device: null
+    
+    fb_lr: 1e-4
+    ortho_coef: 1.0
+    target_tau: 0.01
+    
+    preprocess: false
+    add_trunk: true
+    norm_z: true
