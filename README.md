@@ -64,7 +64,7 @@ bash run_gc_mt_pick_bin.bash
 
 ## Credits
 
-This implementation builds upon and is inspired by:
+This implementation builds upon:
 - [DreamerV3](https://github.com/danijar/dreamerv3) - Original DreamerV3 implementation
 - [dreamerv3-torch](https://github.com/NM512/dreamerv3-torch) - PyTorch implementation of DreamerV3
 - [Meta-World](https://github.com/Farama-Foundation/Metaworld) - Robotic manipulation benchmark
