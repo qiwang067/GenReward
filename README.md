@@ -7,9 +7,9 @@ Qi Wang* · Mian Wu* · Yuyang Zhang* · Mingqi Yuan · Wenyao Zhang · Yunbo Wa
 <h3 align="center"> <a href="https://www.arxiv.org/pdf/2512.00961" target="_blank"> arXiv </a> &nbsp;&nbsp; | &nbsp;&nbsp; <a href="https://qiwang067.github.io/genreward" target="_blank"> Project Page </a> </h3>
   <div align="center"></div>
 
-<!-- <p align="center">
+<p align="center">
 <img src="assets/overview.png" alt="Teaser image" height="400" />
-</p> -->
+</p>
 
 <p style="text-align:justify">
 Reinforcement Learning (RL) has achieved remarkable success in various domains, yet it often relies on carefully designed programmatic reward functions to guide agent behavior. Designing such reward functions can be challenging and may not generalize well across different tasks. To address this limitation, we leverage the rich world knowledge contained in pretrained video diffusion models to provide goal-driven reward signals for RL agents without ad-hoc design of reward. Our key idea is to exploit off-the-shelf video diffusion models pretrained on large-scale video datasets as informative reward functions in terms of video-level and frame-level goals. For video-level rewards, we first finetune a pretrained video diffusion model on domain-specific datasets and then employ its video encoder to evaluate the alignment between the latent representations of agent's trajectories and the generated goal videos. To enable more fine-grained goal-achievement, we derive a frame-level goal by identifying the most relevant frame from the generated video using CLIP, which serves as the goal state. We then employ a learned forward–backward representation that represents the probability of visiting the goal state from a given state–action pair as frame-level reward, promoting more coherent and goal-driven trajectories. Experiments on various Meta-World tasks demonstrate the effectiveness of our approach.
